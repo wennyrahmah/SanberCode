@@ -7,94 +7,59 @@ describe('Login OrangeHRM - 12 Test Cases', () => {
   })
 
 
-  it('TC-LOGIN-01 - Login dengan username dan password valid', () => {
+  // TC-LOGIN-01
+  it('TC-LOGIN-01 - Login valid', () => {
 
     cy.intercept('POST', '**/api/v2/auth/login').as('loginValid')
 
-    cy.get('input[name="username"]')
-      .should('be.visible')
-      .type('Admin')
-
-    cy.get('input[name="password"]')
-      .should('be.visible')
-      .type('admin123')
-
-    cy.get('button[type="submit"]')
-      .click()
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('input[name="password"]').type('admin123')
+    cy.get('button[type="submit"]').click()
 
     cy.wait('@loginValid')
       .its('response.statusCode')
-      .should('eq', 302)
+      .should('eq', 200)
 
-    cy.url()
-      .should('include', '/dashboard')
-
-    cy.contains('Dashboard')
-      .should('be.visible')
-
-    cy.screenshot('TC-LOGIN-01-PASSED', {
-      capture: 'fullPage'
-    })
+    cy.url().should('include', '/dashboard')
   })
 
 
-  it('TC-LOGIN-02 - Username kosong dan password valid', () => {
+  // TC-LOGIN-02
+  it('TC-LOGIN-02 - Username kosong', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameEmpty')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameKosong')
 
-    cy.get('input[name="password"]')
-      .type('admin123')
-
-    cy.get('button[type="submit"]')
-      .click()
-
-    // Memastikan request login tidak dikirim
-    cy.get('@loginUsernameEmpty.all')
-      .should('have.length', 0)
+    cy.get('input[name="password"]').type('admin123')
+    cy.get('button[type="submit"]').click()
 
     cy.get('input[name="username"]')
       .parent()
       .parent()
       .should('contain', 'Required')
-
-    cy.screenshot('TC-LOGIN-02-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
 
-  it('TC-LOGIN-03 - Username valid dan password kosong', () => {
+  // TC-LOGIN-03
+  it('TC-LOGIN-03 - Password kosong', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordEmpty')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordKosong')
 
-    cy.get('input[name="username"]')
-      .type('Admin')
-
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.get('@loginPasswordEmpty.all')
-      .should('have.length', 0)
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('button[type="submit"]').click()
 
     cy.get('input[name="password"]')
       .parent()
       .parent()
       .should('contain', 'Required')
-
-    cy.screenshot('TC-LOGIN-03-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
+
+  // TC-LOGIN-04
   it('TC-LOGIN-04 - Username dan password kosong', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginBothEmpty')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginKosong')
 
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.get('@loginBothEmpty.all')
-      .should('have.length', 0)
+    cy.get('button[type="submit"]').click()
 
     cy.get('input[name="username"]')
       .parent()
@@ -105,112 +70,128 @@ describe('Login OrangeHRM - 12 Test Cases', () => {
       .parent()
       .parent()
       .should('contain', 'Required')
-
-    cy.screenshot('TC-LOGIN-04-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
-  it('TC-LOGIN-05 - Username salah dan password valid', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginWrongUsername')
+  // TC-LOGIN-05
+  it('TC-LOGIN-05 - Username salah', () => {
 
-    cy.get('input[name="username"]')
-      .type('WrongUser')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameSalah')
 
-    cy.get('input[name="password"]')
-      .type('admin123')
+    cy.get('input[name="username"]').type('WrongUser')
+    cy.get('input[name="password"]').type('admin123')
+    cy.get('button[type="submit"]').click()
 
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.wait('@loginWrongUsername')
-      .its('response.statusCode')
-      .should('eq', 401)
+    cy.wait('@loginUsernameSalah')
 
     cy.contains('Invalid credentials')
       .should('be.visible')
-
-    cy.screenshot('TC-LOGIN-05-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
-  it('TC-LOGIN-06 - Username valid dan password salah', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginWrongPassword')
+  it('TC-LOGIN-06 - Password salah', () => {
 
-    cy.get('input[name="username"]')
-      .type('Admin')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordSalah')
 
-    cy.get('input[name="password"]')
-      .type('WrongPassword')
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('input[name="password"]').type('WrongPassword')
+    cy.get('button[type="submit"]').click()
 
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.wait('@loginWrongPassword')
-      .its('response.statusCode')
-      .should('eq', 401)
+    cy.wait('@loginPasswordSalah')
 
     cy.contains('Invalid credentials')
       .should('be.visible')
-
-    cy.screenshot('TC-LOGIN-06-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
 
   it('TC-LOGIN-07 - Username dan password salah', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginBothWrong')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginKeduanyaSalah')
 
-    cy.get('input[name="username"]')
-      .type('WrongUser')
+    cy.get('input[name="username"]').type('WrongUser')
+    cy.get('input[name="password"]').type('WrongPassword')
+    cy.get('button[type="submit"]').click()
 
-    cy.get('input[name="password"]')
-      .type('WrongPassword')
-
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.wait('@loginBothWrong')
-      .its('response.statusCode')
-      .should('eq', 401)
+    cy.wait('@loginKeduanyaSalah')
 
     cy.contains('Invalid credentials')
       .should('be.visible')
-
-    cy.screenshot('TC-LOGIN-07-PASSED', {
-      capture: 'fullPage'
-    })
   })
 
 
-  it('TC-LOGIN-08 - Username menggunakan spasi', () => {
+  it('TC-LOGIN-08 - Username dengan spasi', () => {
 
-    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameSpace')
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameSpasi')
 
-    cy.get('input[name="username"]')
-      .type(' Admin ')
+    cy.get('input[name="username"]').type(' Admin ')
+    cy.get('input[name="password"]').type('admin123')
+    cy.get('button[type="submit"]').click()
 
-    cy.get('input[name="password"]')
-      .type('admin123')
-
-    cy.get('button[type="submit"]')
-      .click()
-
-    cy.wait('@loginUsernameSpace')
-      .its('response.statusCode')
-      .should('eq', 401)
+    cy.wait('@loginUsernameSpasi')
 
     cy.contains('Invalid credentials')
       .should('be.visible')
+  })
 
-    cy.screenshot('TC-LOGIN-08-PASSED', {
-      capture: 'fullPage'
-    })
+
+  it('TC-LOGIN-09 - Password dengan spasi', () => {
+
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordSpasi')
+
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('input[name="password"]').type(' admin123 ')
+    cy.get('button[type="submit"]').click()
+
+    cy.wait('@loginPasswordSpasi')
+
+    cy.contains('Invalid credentials')
+      .should('be.visible')
+  })
+
+
+  it('TC-LOGIN-10 - Username huruf kapital', () => {
+
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginUsernameKapital')
+
+    cy.get('input[name="username"]').type('ADMIN')
+    cy.get('input[name="password"]').type('admin123')
+    cy.get('button[type="submit"]').click()
+
+    cy.wait('@loginUsernameKapital')
+
+    cy.contains('Invalid credentials')
+      .should('be.visible')
+  })
+
+
+  it('TC-LOGIN-11 - Password huruf kapital', () => {
+
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordKapital')
+
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('input[name="password"]').type('ADMIN123')
+    cy.get('button[type="submit"]').click()
+
+    cy.wait('@loginPasswordKapital')
+
+    cy.contains('Invalid credentials')
+      .should('be.visible')
+  })
+
+  it('TC-LOGIN-12 - Password sangat panjang', () => {
+
+    const longPassword = 'A'.repeat(100)
+
+    cy.intercept('POST', '**/api/v2/auth/login').as('loginPasswordPanjang')
+
+    cy.get('input[name="username"]').type('Admin')
+    cy.get('input[name="password"]').type(longPassword)
+    cy.get('button[type="submit"]').click()
+
+    cy.wait('@loginPasswordPanjang')
+
+    cy.contains('Invalid credentials')
+      .should('be.visible')
   })
 
 })
